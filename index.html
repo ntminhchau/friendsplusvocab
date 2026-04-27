@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Friends Plus Vocab - Bé Bi English Class</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #a8e6cf; --secondary: #ffaaa5; --accent: #ffd3b6; --bg: #fdfcfb; --text: #5d5d5d;
+        }
+        body { font-family: 'Quicksand', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; line-height: 1.6; }
+        header { text-align: center; padding: 50px 20px; background: linear-gradient(135deg, #a8e6cf 0%, #dcedc1 100%); border-radius: 30px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(168,230,207,0.3); }
+        h1 { margin: 0; color: #447061; font-size: 2.2rem; }
+        .controls { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; margin-bottom: 40px; position: sticky; top: 15px; z-index: 100; }
+        input, select { padding: 12px 25px; border: 2px solid var(--primary); border-radius: 50px; outline: none; font-family: inherit; font-size: 1rem; background: white; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: 0.3s; }
+        input:focus { border-color: var(--secondary); transform: scale(1.02); }
+        .vocab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; max-width: 1200px; margin: 0 auto; }
+        .card { background: white; border-radius: 20px; padding: 25px; transition: 0.3s; border: 1px solid #f0f0f0; position: relative; display: flex; flex-direction: column; box-shadow: 0 10px 20px rgba(0,0,0,0.02); }
+        .card:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.08); border-color: var(--primary); }
+        .unit-tag { position: absolute; top: 15px; right: 15px; background: var(--secondary); color: white; padding: 3px 12px; border-radius: 15px; font-size: 0.75rem; font-weight: 700; }
+        .word { font-size: 1.5rem; color: #ff8b94; font-weight: 700; margin-bottom: 5px; }
+        .ipa { color: #a0a0a0; font-size: 0.9rem; margin-bottom: 12px; font-family: sans-serif; }
+        .meaning { color: #4a4a4a; font-weight: 600; margin-bottom: 15px; padding-left: 12px; border-left: 4px solid var(--primary); }
+        .example { font-style: italic; font-size: 0.9rem; color: #777; background: #f9fffb; padding: 12px; border-radius: 12px; border: 1px dashed #d1eadd; flex-grow: 1; }
+        footer { text-align: center; margin-top: 50px; padding: 20px; opacity: 0.6; font-size: 0.9rem; }
+        @media (max-width: 600px) { .controls input { width: 100%; } .vocab-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>🌸 Friends Plus Dictionary</h1>
+    <p>Góc học tập nhỏ của cô <b>Bé Bi</b> và các bạn học sinh!</p>
+</header>
+
+<div class="controls">
+    <input type="text" id="searchBar" placeholder="Tìm từ vựng hoặc nghĩa..." onkeyup="filterVocab()">
+    <select id="unitFilter" onchange="filterVocab()">
+        <option value="all">Tất cả bài học</option>
+        <option value="Starter">Starter Unit</option>
+        <option value="Unit 1">Unit 1: Then and now</option>
+        <option value="Unit 2">Unit 2: Lifestyles</option>
+        <option value="Unit 3">Unit 3: Our surroundings</option>
+        <option value="Unit 4">Unit 4: Feelings</option>
+        <option value="Unit 5">Unit 5: English & World Discovery</option>
+        <option value="Unit 6">Unit 6: The self</option>
+        <option value="Unit 7">Unit 7: On the streets</option>
+        <option value="Unit 8">Unit 8: Scary</option>
+    </select>
+</div>
+
+<div class="vocab-grid" id="vocabGrid"></div>
+
+<footer>Trang web được thiết kế với ❤️ dành cho học sinh của Bé Bi</footer>
+
+<script>
+const vocabData = [
+    // Starter Unit [cite: 2]
+    { unit: "Starter", word: "Calculator", ipa: "/ˈkæl.kjə.leɪ.tər/", meaning: "máy tính (để tính toán)", example: "I used the calculator app on my phone." },
+    { unit: "Starter", word: "Celebrity", ipa: "/səˈleb.rə.ti/", meaning: "nhân vật nổi tiếng", example: "The show's success made her an overnight celebrity." },
+    { unit: "Starter", word: "Check", ipa: "/tʃek/", meaning: "kiểm tra; rà soát", example: "Keep checking the website for tickets." },
+    { unit: "Starter", word: "Comment", ipa: "/ˈkɒm.ent/", meaning: "lời bình luận", example: "Their latest show received many good comments." },
+    { unit: "Starter", word: "Game console", ipa: "/ˈɡeɪm ˌkɒn.səʊl/", meaning: "máy chơi điện tử", example: "I often play video games on my game console." },
+    { unit: "Starter", word: "GPS", ipa: "-", meaning: "hệ thống định vị toàn cầu", example: "GPS uses radio signals to pinpoint locations." },
+    { unit: "Starter", word: "Headset", ipa: "/ˈhed.set/", meaning: "tai nghe chụp tai", example: "He used a wireless headset for the call." },
+    { unit: "Starter", word: "Link", ipa: "/lɪŋk/", meaning: "đường liên kết", example: "Click on this link to visit our online shop." },
+    { unit: "Starter", word: "Luxury", ipa: "/ˈlʌk.ʃər.i/", meaning: "hàng xa xỉ", example: "We stayed at a luxury resort for our honeymoon." },
+    { unit: "Starter", word: "Navigate", ipa: "/ˈnæv.ɪ.ɡeɪt/", meaning: "định hướng, tìm đường", example: "He learned to navigate the city without a map." },
+    { unit: "Starter", word: "Necessity", ipa: "/nəˈses.ə.ti/", meaning: "đồ cần thiết", example: "Fresh water is a necessity for life." },
+    { unit: "Starter", word: "Password", ipa: "/ˈpɑːs.wɜːd/", meaning: "mật khẩu", example: "He forgot the password to access his email." },
+    { unit: "Starter", word: "Player", ipa: "/ˈpleɪ.ər/", meaning: "máy phát nhạc, phim", example: "She used her MP3 player to listen to music." },
+    { unit: "Starter", word: "Profile", ipa: "/ˈprəʊ.faɪl/", meaning: "thông tin tài khoản", example: "You can post your status on your Facebook profile." },
+    { unit: "Starter", word: "Remote control", ipa: "/rɪˌməʊt kənˈtrəʊl/", meaning: "điều khiển từ xa", example: "Have you seen the remote control for the TV?" },
+    { unit: "Starter", word: "Request", ipa: "/rɪˈkwest/", meaning: "sự yêu cầu", example: "Please submit your vacation request to HR." },
+    { unit: "Starter", word: "Reset", ipa: "/ˌriːˈset/", meaning: "đặt lại, sửa lại", example: "I must reset my password." },
+    { unit: "Starter", word: "Satellite", ipa: "/ˈsæt.əl.aɪt/", meaning: "vệ tinh nhân tạo", example: "A human-made object in space can be a satellite." },
+    { unit: "Starter", word: "Selfie", ipa: "/ˈselfi/", meaning: "ảnh tự sướng", example: "Fans enjoy taking a selfie with their favorite star." },
+    { unit: "Starter", word: "Spellchecker", ipa: "/ˈspelˌtʃek.ər/", meaning: "kiểm tra lỗi chính tả", example: "I used the spellchecker to correct errors." },
+    { unit: "Starter", word: "Spend", ipa: "/spend/", meaning: "dành thời gian", example: "I like to spend my free time fishing." },
+    { unit: "Starter", word: "Stream", ipa: "/striːm/", meaning: "phát sóng", example: "Millions of videos are streamed every day." },
+    { unit: "Starter", word: "Translator", ipa: "/trænzˈleɪ.tər/", meaning: "người biên dịch", example: "He works as a translator and researcher." },
+    { unit: "Starter", word: "Update", ipa: "/ʌpˈdeɪt/", meaning: "cập nhật thông tin", example: "We'll update you on this news story." },
+    { unit: "Starter", word: "Video call", ipa: "/ˈvɪd.i.əʊ kɔːl/", meaning: "cuộc gọi hình ảnh", example: "She scheduled a video call with her colleagues." },
+    { unit: "Starter", word: "Wearable", ipa: "/ˈweə.rə.bəl/", meaning: "thiết bị đeo tay", example: "Wearable technology can monitor heart rate." },
+    { unit: "Starter", word: "Wifi", ipa: "-", meaning: "mạng không dây", example: "There is free wifi for library members." },
+
+    // Unit 1: Then and now [cite: 4]
+    { unit: "Unit 1", word: "Affordable", ipa: "/əˈfɔː.də.bəl/", meaning: "giá cả hợp lý", example: "The company needed an affordable phone system." },
+    { unit: "Unit 1", word: "Afterwards", ipa: "/ˈɑːf.tə.wədz/", meaning: "sau đó, rồi thì", example: "We ate dinner and went home afterwards." },
+    { unit: "Unit 1", word: "Anecdote", ipa: "/ˈæn.ɪk.dəʊt/", meaning: "giai thoại", example: "He told one or two amusing anecdotes about his life." },
+    { unit: "Unit 1", word: "Belong to", ipa: "-", meaning: "thuộc về", example: "The dollhouse belongs to Mai." },
+    { unit: "Unit 1", word: "Brand new", ipa: "-", meaning: "mới tinh", example: "How can he afford a brand new car?" },
+    { unit: "Unit 1", word: "City dweller", ipa: "/ˈsɪt.i ˈdwel.ər/", meaning: "cư dân thành thị", example: "City dwellers should stop using cars in urban areas." },
+    { unit: "Unit 1", word: "Come across", ipa: "-", meaning: "tình cờ bắt gặp", example: "She came across some old photographs in a drawer." },
+    { unit: "Unit 1", word: "Common", ipa: "/ˈkɒm.ən/", meaning: "phổ biến, thông thường", example: "Computer games are a common free-time activity." },
+    { unit: "Unit 1", word: "Commute", ipa: "/kəˈmjuːt/", meaning: "đi làm hằng ngày", example: "He decided to commute to work by bike." },
+    { unit: "Unit 1", word: "Competitive", ipa: "/kəmˈpet.ɪ.tɪv/", meaning: "hiếu thắng, cạnh tranh", example: "You're very competitive - it's meant to be a friendly match!" },
+    { unit: "Unit 1", word: "Crypt", ipa: "/krɪpt/", meaning: "hầm mộ", example: "Nelson was buried in the crypt of the cathedral." },
+    { unit: "Unit 1", word: "Damaged", ipa: "/ˈdæm.ɪdʒd/", meaning: "bị hư hại", example: "The shipment contained several damaged items." },
+    { unit: "Unit 1", word: "Description", ipa: "/dɪˈskrɪp.ʃən/", meaning: "sự mô tả", example: "Write a description of your favourite beach." },
+    { unit: "Unit 1", word: "Dramatically", ipa: "/drəˈmæt.ɪ.kəl.i/", meaning: "một cách đột ngột", example: "Your life changes dramatically when you have a baby." },
+    { unit: "Unit 1", word: "Efficient", ipa: "/ɪˈfɪʃ.ənt/", meaning: "có hiệu suất cao", example: "Efficient cars use less fuel." },
+    { unit: "Unit 1", word: "Essential", ipa: "/ɪˈsen.ʃəl/", meaning: "cần thiết, quan trọng", example: "Plants and animals are an essential part of Earth." },
+    { unit: "Unit 1", word: "Eventually", ipa: "/ɪˈven.tʃu.ə.li/", meaning: "cuối cùng", example: "Eventually, they all became extinct." },
+    { unit: "Unit 1", word: "Find", ipa: "/faɪnd/", meaning: "tìm ra, tìm thấy", example: "They were relieved to find their lost passport." },
+    { unit: "Unit 1", word: "Forget", ipa: "/fəˈɡet/", meaning: "quên", example: "Let me write down that date before I forget it." },
+    { unit: "Unit 1", word: "Fragile", ipa: "/ˈfrædʒ.aɪl/", meaning: "dễ vỡ", example: "Handle the fragile vase with care." },
+    { unit: "Unit 1", word: "Frame", ipa: "/freɪm/", meaning: "đặt vào khung", example: "I keep meaning to get that photo framed." },
+    { unit: "Unit 1", word: "Get around", ipa: "-", meaning: "đi đến nhiều nơi", example: "Stuart really gets around - last week he was in Dubai." },
+    { unit: "Unit 1", word: "Get back", ipa: "-", meaning: "lấy lại", example: "Where can I get my broken phone back?" },
+    { unit: "Unit 1", word: "Highway", ipa: "/ˈhaɪ.weɪ/", meaning: "đường quốc lộ", example: "There was a traffic jam on the highway." },
+    { unit: "Unit 1", word: "Infrastructure", ipa: "/ˈɪn.frəˌstrʌk.tʃər/", meaning: "cơ sở hạ tầng", example: "The city invested heavily in its infrastructure." },
+    { unit: "Unit 1", word: "Invest", ipa: "/ɪnˈvest/", meaning: "đầu tư", example: "Don't invest all of your time in just one project." },
+    { unit: "Unit 1", word: "Keep", ipa: "/kiːp/", meaning: "giữ; cất giữ", example: "Can you keep a secret?" },
+    { unit: "Unit 1", word: "Lead to", ipa: "-", meaning: "dẫn đến", example: "Too much junk food could lead to health problems." },
+    { unit: "Unit 1", word: "Leave", ipa: "/liːv/", meaning: "để lại", example: "Don't leave anything in the fridge." },
+    { unit: "Unit 1", word: "Look forward to", ipa: "-", meaning: "mong ngóng", example: "We look forward to seeing you at the meeting." },
+    { unit: "Unit 1", word: "Meanwhile", ipa: "/ˈmiːn.waɪl/", meaning: "trong lúc đó", example: "He's travelling; meanwhile, I'm working." },
+    { unit: "Unit 1", word: "Memory", ipa: "/ˈmem.ər.i/", meaning: "ký ức, kỷ niệm", example: "That tune really brings back memories." },
+    { unit: "Unit 1", word: "Modern", ipa: "/ˈmɒd.ən/", meaning: "hiện đại", example: "She is very interested in modern art." },
+    { unit: "Unit 1", word: "Motorised", ipa: "/ˈməʊ.tər.aɪzd/", meaning: "được gắn động cơ", example: "The motorised wheelchair provided independence." },
+    { unit: "Unit 1", word: "Photograph", ipa: "/ˈfəʊ.tə.ɡrɑːf/", meaning: "bức ảnh", example: "She hung the photograph of her family on the wall." },
+    { unit: "Unit 1", word: "Property", ipa: "/ˈprɒp.ə.ti/", meaning: "tài sản", example: "They lost all of their property in the earthquake." },
+    { unit: "Unit 1", word: "Railway", ipa: "/ˈreɪl.weɪ/", meaning: "đường sắt", example: "We live close to the railway." },
+    { unit: "Unit 1", word: "Rare", ipa: "/reər/", meaning: "hiếm có", example: "It's rare to find these birds in winter." },
+    { unit: "Unit 1", word: "Recognise", ipa: "/ˈrek.əɡ.naɪz/", meaning: "nhận ra", example: "I recognised her immediately." },
+    { unit: "Unit 1", word: "Rely on", ipa: "-", meaning: "dựa dẫm vào", example: "I have always relied on his advice." },
+    { unit: "Unit 1", word: "Remember", ipa: "/rɪˈmem.bər/", meaning: "nhớ", example: "I will remember the combination to the safe." },
+    { unit: "Unit 1", word: "Remind of", ipa: "-", meaning: "gợi nhớ", example: "You remind me of your mother." },
+    { unit: "Unit 1", word: "Result from", ipa: "-", meaning: "là do nguyên nhân từ", example: "His injury results from a fall." },
+    { unit: "Unit 1", word: "Status", ipa: "/ˈsteɪ.təs/", meaning: "địa vị", example: "The association works to promote the status of seniors." },
+    { unit: "Unit 1", word: "Time capsule", ipa: "/ˈtaɪm ˌkæp.sjuːl/", meaning: "hộp thời gian", example: "In 50 years, someone will dig up the time capsule." },
+    { unit: "Unit 1", word: "Tough", ipa: "/tʌf/", meaning: "chắc, bền", example: "Leather is a tough material, but silk is flimsy." },
+    { unit: "Unit 1", word: "Transport", ipa: "/ˈtræn.spɔːt/", meaning: "sự vận chuyển", example: "Modern transport makes travel easy." },
+    { unit: "Unit 1", word: "Ups and downs", ipa: "-", meaning: "thăng trầm", example: "We've had our share of ups and downs." },
+    { unit: "Unit 1", word: "Valuable", ipa: "/ˈvæl.jə.bəl/", meaning: "quý giá", example: "The man keeps his valuable stamps in a safe." },
+    { unit: "Unit 1", word: "Vehicle", ipa: "/ˈvɪə.kəl/", meaning: "xe cộ, phương tiện", example: "Electric vehicles are becoming more popular." },
+    { unit: "Unit 1", word: "Wristband", ipa: "/ˈrɪst.bænd/", meaning: "vòng tay", example: "He was wearing an anti-racism wristband." },
+
+    // Unit 2: Lifestyles [cite: 6]
+    { unit: "Unit 2", word: "Against", ipa: "/əˈɡenst/", meaning: "chống lại", example: "Britain was fighting a war against the enemy." },
+    { unit: "Unit 2", word: "Alternative", ipa: "/ɒlˈtɜː.nə.tɪv/", meaning: "phương án khác", example: "Many countries are exploring alternative energy." },
+    { unit: "Unit 2", word: "Avoid", ipa: "/əˈvɔɪd/", meaning: "tránh; ngừa", example: "Try to avoid talking about the price." },
+    { unit: "Unit 2", word: "Bother", ipa: "/ˈbɒð.ər/", meaning: "bỏ công sức", example: "No one bothered to wash the dishes today." },
+    { unit: "Unit 2", word: "Careful", ipa: "/ˈkeə.fəl/", meaning: "cẩn thận", example: "Please be careful with the glassware." },
+    { unit: "Unit 2", word: "Careless", ipa: "/ˈkeə.ləs/", meaning: "cẩu thả", example: "It was careless of me to leave the door open." },
+    { unit: "Unit 2", word: "Chance", ipa: "/tʃɑːns/", meaning: "cơ hội", example: "You'll have the chance to walk around the museum." },
+    { unit: "Unit 2", word: "Commit", ipa: "/kəˈmɪt/", meaning: "cam kết", example: "She committed herself to finding best investments." },
+    { unit: "Unit 2", word: "Concentration", ipa: "/ˌkɒn.sənˈtreɪ.ʃən/", meaning: "sự tập trung", example: "Paying close attention to something is concentration." },
+    { unit: "Unit 2", word: "Consider", ipa: "/kənˈsɪd.ər/", meaning: "cân nhắc", example: "Consider the time when planning the project." },
+    { unit: "Unit 2", word: "Container", ipa: "/kənˈteɪ.nər/", meaning: "đồ đựng", example: "Keep butter in a special container." },
+    { unit: "Unit 2", word: "Copy", ipa: "/ˈkɒp.i/", meaning: "bắt chước", example: "She copies everything her sister does." },
+    { unit: "Unit 2", word: "Decisive", ipa: "/dɪˈsaɪ.sɪv/", meaning: "quyết đoán", example: "Her decisive action saved the company." },
+    { unit: "Unit 2", word: "Disposable", ipa: "/dɪˈspəʊ.zə.bəl/", meaning: "dùng một lần", example: "Disposable nappies are widely used." },
+    { unit: "Unit 2", word: "Drop out", ipa: "-", meaning: "ngừng tham gia", example: "He dropped out of active politics." },
+    { unit: "Unit 2", word: "Effort", ipa: "/ˈef.ət/", meaning: "sự nỗ lực", example: "It takes a huge amount of effort to win." },
+    { unit: "Unit 2", word: "Environmental", ipa: "/ɪnˌvaɪ.rənˈmen.təl/", meaning: "thuộc môi trường", example: "Environmental regulations protect our planet." },
+    { unit: "Unit 2", word: "Extension", ipa: "/ɪkˈsten.ʃən/", meaning: "sự mở rộng", example: "The project deadline was given an extension." },
+    { unit: "Unit 2", word: "Fearless", ipa: "/ˈfɪə.ləs/", meaning: "không sợ hãi", example: "The fearless firefighter saved the residents." },
+    { unit: "Unit 2", word: "Get a buzz out of", ipa: "-", meaning: "nhận được niềm vui", example: "I get a buzz out of public speaking." },
+    { unit: "Unit 2", word: "Get in touch", ipa: "-", meaning: "liên lạc", example: "We will get in touch with the manager." },
+    { unit: "Unit 2", word: "Get into", ipa: "-", meaning: "hứng thú với", example: "She's been getting into yoga recently." },
+    { unit: "Unit 2", word: "Get on with", ipa: "-", meaning: "tiếp tục công việc", example: "They left me to get on with my work." },
+    { unit: "Unit 2", word: "Get together", ipa: "-", meaning: "gặp nhau", example: "Shall we get together on Friday for a drink?" },
+    { unit: "Unit 2", word: "Get used to", ipa: "-", meaning: "trở nên quen với", example: "I just can't get used to waking up early." },
+    { unit: "Unit 2", word: "Harmful", ipa: "/ˈhɑːm.fəl/", meaning: "có hại", example: "X-rays can be harmful to the fetus." },
+    { unit: "Unit 2", word: "Harmless", ipa: "/ˈhɑːm.ləs/", meaning: "vô hại", example: "It was meant as a harmless joke." },
+    { unit: "Unit 2", word: "Hesitate", ipa: "/ˈhez.ɪ.teɪt/", meaning: "do dự", example: "He hesitated for a moment before he decided." },
+    { unit: "Unit 2", word: "Homeless", ipa: "/ˈhəʊmləs/", meaning: "vô gia cư", example: "We provided food for homeless children." },
+    { unit: "Unit 2", word: "Hurry", ipa: "/ˈhʌr.i/", meaning: "vội vàng", example: "We have to hurry to make it on time." },
+    { unit: "Unit 2", word: "Impact", ipa: "/ˈɪm.pækt/", meaning: "sự ảnh hưởng", example: "My grandmother had a great impact on my life." },
+    { unit: "Unit 2", word: "In favour of", ipa: "-", meaning: "ủng hộ", example: "Are you in favour of a ban on smoking?" },
+    { unit: "Unit 2", word: "In two minds", ipa: "-", meaning: "đắn đo", example: "I am in two minds about going to the party." },
+    { unit: "Unit 2", word: "Involved", ipa: "/ɪnˈvɒlvd/", meaning: "tham gia", example: "She is highly involved in the planning." },
+    { unit: "Unit 2", word: "Jar", ipa: "/dʒɑːr/", meaning: "lọ, hũ", example: "My mother put spices in old glass jars." },
+    { unit: "Unit 2", word: "Lifestyle", ipa: "/ˈlaɪf.staɪl/", meaning: "lối sống", example: "Swimming helps develop a healthy lifestyle." },
+    { unit: "Unit 2", word: "Majority", ipa: "/məˈdʒɒr.ə.ti/", meaning: "đa số", example: "The majority of participants were men." },
+    { unit: "Unit 2", word: "Make up one's mind", ipa: "-", meaning: "quyết định", example: "I'm still making up my mind about the flavor." },
+    { unit: "Unit 2", word: "Moneyless", ipa: "/ˈmʌnɪlɪs/", meaning: "không có tiền", example: "Inflation has left the banks moneyless." },
+    { unit: "Unit 2", word: "Nomad", ipa: "/ˈnəʊ.mæd/", meaning: "người lang thang", example: "A person without a permanent home is a nomad." },
+    { unit: "Unit 2", word: "Option", ipa: "/ˈɒp.ʃən/", meaning: "lựa chọn", example: "He had the option to stay or leave." },
+    { unit: "Unit 2", word: "Packaging", ipa: "/ˈpæk.ɪ.dʒɪŋ/", meaning: "bao bì", example: "All our packaging is biodegradable." },
+    { unit: "Unit 2", word: "Postpone", ipa: "/pəʊstˈpəʊn/", meaning: "trì hoãn", example: "They postponed the meeting until she arrived." },
+    { unit: "Unit 2", word: "Put off", ipa: "-", meaning: "hoãn lại", example: "They decided to put off the wedding." },
+    { unit: "Unit 2", word: "Rush", ipa: "/rʌʃ/", meaning: "làm gấp gáp", example: "Don't rush - take as long as you like." },
+    { unit: "Unit 2", word: "Rush into", ipa: "-", meaning: "vội vã làm gì", example: "She rushed into the relationship too fast." },
+    { unit: "Unit 2", word: "Shelter", ipa: "/ˈshel.tər/", meaning: "nơi trú ẩn", example: "The frog took shelter from the storm." },
+    { unit: "Unit 2", word: "Sort of", ipa: "-", meaning: "theo một cách nào đó", example: "I was sort of hoping to leave early today." },
+    { unit: "Unit 2", word: "Stick with", ipa: "-", meaning: "tiếp tục với", example: "He decided to stick with the traditions." },
+    { unit: "Unit 2", word: "Study", ipa: "/ˈstʌd.i/", meaning: "sự học hành", example: "Adam doesn't spend enough time on his studies." },
+    { unit: "Unit 2", word: "Take your time", ipa: "-", meaning: "cứ từ từ", example: "There's no rush to make a decision." },
+    { unit: "Unit 2", word: "Tasteful", ipa: "/ˈteɪst.fəl/", meaning: "trang nhã", example: "The room was decorated in a tasteful manner." },
+    { unit: "Unit 2", word: "Tasteless", ipa: "/ˈteɪst.ləs/", meaning: "vô vị, nhạt", example: "The meat was dry and tasteless." },
+    { unit: "Unit 2", word: "Think twice", ipa: "-", meaning: "nghĩ kỹ", example: "Think twice before investing your money." },
+    { unit: "Unit 2", word: "Thoughtful", ipa: "/ˈθɔːt.fəl/", meaning: "chu đáo", example: "Everyone thinks that he's so thoughtful." },
+    { unit: "Unit 2", word: "Thoughtless", ipa: "/ˈθɔːt.ləs/", meaning: "vô tâm", example: "It was thoughtless not to call and say you'd be late." },
+    { unit: "Unit 2", word: "Toothpaste", ipa: "/ˈtuːθ.peɪst/", meaning: "kem đánh răng", example: "People use toothpaste to clean their teeth." },
+    { unit: "Unit 2", word: "Toward", ipa: "/təˈwɔːd/", meaning: "về phía, đối với", example: "They've always been very friendly toward me." },
+    { unit: "Unit 2", word: "Transition year", ipa: "-", meaning: "năm chuyển tiếp", example: "It serves as a bridge to higher education." },
+    { unit: "Unit 2", word: "Try out", ipa: "-", meaning: "thử nghiệm", example: "They're trying out a new drug." },
+    { unit: "Unit 2", word: "Useful", ipa: "/ˈjuːs.fəl/", meaning: "hữu ích", example: "This book might be useful for your project." },
+    { unit: "Unit 2", word: "Useless", ipa: "/ˈjuːs.ləs/", meaning: "vô dụng", example: "Without fuel, the vehicles become useless." },
+    { unit: "Unit 2", word: "Wasteful", ipa: "/ˈweɪst.fəl/", meaning: "lãng phí", example: "It's wasteful to throw away so much food." },
+    { unit: "Unit 2", word: "Zero-waste", ipa: "/ˌzɪə.rəʊˈweɪst/", meaning: "không rác thải", example: "I have an almost zero-waste lifestyle." },
+
+    // Unit 3: Our surroundings [cite: 8]
+    { unit: "Unit 3", word: "Advertisement", ipa: "/ədˈvɜː.tɪs.mənt/", meaning: "quảng cáo", example: "Many companies run ads in the magazine." },
+    { unit: "Unit 3", word: "Afford", ipa: "/əˈfɔːd/", meaning: "đủ tiền mua", example: "I can afford to buy a new bike." },
+    { unit: "Unit 3", word: "Approximately", ipa: "/əˈprɒk.sɪ.mət.li/", meaning: "xấp xỉ", example: "The flight takes approximately six hours." },
+    { unit: "Unit 3", word: "As well as", ipa: "-", meaning: "cũng như", example: "She sells home goods as well as clothes." },
+    { unit: "Unit 3", word: "Awesome", ipa: "/ˈɔː.səm/", meaning: "tuyệt vời", example: "You look totally awesome in that dress." },
+    { unit: "Unit 3", word: "Bar code", ipa: "/ˈbɑː ˌkəʊd/", meaning: "mã vạch", example: "The cashier scanned the bar code on each item." },
+    { unit: "Unit 3", word: "Bargain", ipa: "/ˈbɑː.ɡɪn/", meaning: "món hời", example: "The airline offers last-minute bargain prices." },
+    { unit: "Unit 3", word: "Brand", ipa: "/brænd/", meaning: "thương hiệu", example: "Our brand stands for quality and reliability." },
+    { unit: "Unit 3", word: "Business", ipa: "/ˈbɪz.nɪs/", meaning: "việc kinh doanh", example: "My aunt works in the jewelry business." },
+    { unit: "Unit 3", word: "Celebrity", ipa: "/səˈleb.rə.ti/", meaning: "người nổi tiếng", example: "The show's success made her a celebrity." },
+    { unit: "Unit 3", word: "Checkout", ipa: "/ˈtʃek.aʊt/", meaning: "quầy thu ngân", example: "The line at this checkout is too long." },
+    { unit: "Unit 3", word: "Company", ipa: "/ˈkʌm.pə.ni/", meaning: "công ty", example: "I joined a modern dance company." },
+    { unit: "Unit 3", word: "Consumer", ipa: "/kənˈsjuː.mər/", meaning: "người tiêu dùng", example: "The government tracks consumer spending." },
+    { unit: "Unit 3", word: "Cost", ipa: "/kɒst/", meaning: "trị giá", example: "The DVD costs £16 in the supermarket." },
+    { unit: "Unit 3", word: "Deliver", ipa: "/dɪˈlɪv.ər/", meaning: "giao hàng", example: "That restaurant delivers food at no extra charge." },
+    { unit: "Unit 3", word: "Equivalent", ipa: "/ɪˈquɪv.əl.ənt/", meaning: "vật tương đương", example: "There is no English equivalent for this word." },
+    { unit: "Unit 3", word: "Exchange", ipa: "/ɪksˈtʃeɪndʒ/", meaning: "trao đổi", example: "Help me exchange these dollars for yuan." },
+    { unit: "Unit 3", word: "Exotic", ipa: "/ɪɡˈzɒt.ɪk/", meaning: "độc lạ", example: "They enjoyed trying exotic foods." },
+    { unit: "Unit 3", word: "Fit", ipa: "/fɪt/", meaning: "vừa vặn", example: "The colorful eggs fit into the box." },
+    { unit: "Unit 3", word: "Influencer", ipa: "/ˈɪn.flu.ən.sər/", meaning: "người ảnh hưởng", example: "She focuses on her career as an influencer." },
+    { unit: "Unit 3", word: "Label", ipa: "/ˈleɪ.bəl/", meaning: "nhãn hàng", example: "Her favourite designer label is Armani." },
+    { unit: "Unit 3", word: "Litre", ipa: "/ˈliː.tər/", meaning: "lít", example: "I'd like a litre bottle of water, please." },
+    { unit: "Unit 3", word: "Luxury", ipa: "/ˈlʌk.ʃər.i/", meaning: "hàng xa xỉ", example: "We stayed at a luxury resort." },
+    { unit: "Unit 3", word: "Marketing", ipa: "/ˈmɑː.kɪ.tɪŋ/", meaning: "ngành tiếp thị", example: "Marketing targets specific individuals." },
+    { unit: "Unit 3", word: "Massive", ipa: "/ˈmæs.ɪv/", meaning: "to lớn", example: "The wheels on his truck were massive." },
+    { unit: "Unit 3", word: "Mention", ipa: "/ˈmen.ʃən/", meaning: "đề cập", example: "Maybe you should mention it at the meeting." },
+    { unit: "Unit 3", word: "Overnight", ipa: "/ˌəʊ.vəˈnaɪt/", meaning: "đột nhiên", example: "The book was an overnight success." },
+    { unit: "Unit 3", word: "Pay", ipa: "/peɪ/", meaning: "trả lương", example: "The company pays interns $4,000 a month." },
+    { unit: "Unit 3", word: "Popularity", ipa: "/ˌpɒpjuˈlærəti/", meaning: "sự phổ biến", example: "The battery's popularity increased fast." },
+    { unit: "Unit 3", word: "Price", ipa: "/praɪs/", meaning: "giá tiền", example: "What is the price of this item?" },
+    { unit: "Unit 3", word: "Producer", ipa: "/prəˈdʒuː.sər/", meaning: "nhà sản xuất", example: "This company is a large oil producer." },
+    { unit: "Unit 3", word: "Product", ipa: "/ˈpɒr.ʌkt/", meaning: "sản phẩm", example: "The new product will be released in spring." },
+    { unit: "Unit 3", word: "Promote", ipa: "/prəˈməʊt/", meaning: "quảng bá", example: "Their goal was promoting gender equality." },
+    { unit: "Unit 3", word: "Promoter", ipa: "/prəˈməʊ.tər/", meaning: "người tổ chức", example: "He organized events as a promoter." },
+    { unit: "Unit 3", word: "Receipt", ipa: "/rɪˈsiːt/", meaning: "hóa đơn", example: "Keep your receipt to return the item." },
+    { unit: "Unit 3", word: "Rent", ipa: "/rent/", meaning: "thuê", example: "It costs two dollars to rent the rackets." },
+    { unit: "Unit 3", word: "Retailer", ipa: "/ˈriː.teɪ.lər/", meaning: "người bán lẻ", example: "The retailer offers competitive prices." },
+    { unit: "Unit 3", word: "Rip-off", ipa: "/ˈrɪp.ɒf/", meaning: "đồ mua hớ", example: "$70 for a T-shirt! What a rip-off!" },
+    { unit: "Unit 3", word: "Save", ipa: "/seɪv/", meaning: "tiết kiệm", example: "You'll save time if you take the car." },
+    { unit: "Unit 3", word: "Scan", ipa: "/skæn/", meaning: "xem xét", example: "Scan the horizon for any sign of the boat." },
+    { unit: "Unit 3", word: "Special offer", ipa: "-", meaning: "khuyến mãi", example: "There are special offers on sofas today." },
+    { unit: "Unit 3", word: "Spend", ipa: "/spend/", meaning: "chi tiêu", example: "We spent a lot of money on the trip." },
+    { unit: "Unit 3", word: "Status symbol", ipa: "-", meaning: "biểu tượng giàu sang", example: "This brand is the ultimate status symbol." },
+    { unit: "Unit 3", word: "Stuff", ipa: "/stʌf/", meaning: "thứ gì đó", example: "What's this black stuff on the floor?" },
+    { unit: "Unit 3", word: "Subscriber", ipa: "/səbˈskraɪ.bər/", meaning: "người đăng ký", example: "The magazine needs more subscribers." },
+    { unit: "Unit 3", word: "Surroundings", ipa: "/səˈraʊ.dɪŋz/", meaning: "môi trường xung quanh", example: "They live in very pleasant surroundings." },
+    { unit: "Unit 3", word: "Tough", ipa: "/tʌf/", meaning: "khó khăn", example: "We agreed on a deal after tough bargaining." },
+    { unit: "Unit 3", word: "Try on", ipa: "-", meaning: "mặc thử", example: "I tried on six pairs of trousers." },
+    { unit: "Unit 3", word: "Value", ipa: "/ˈvæl.juː/", meaning: "giá trị", example: "It's better value for money to take the bus." },
+    { unit: "Unit 3", word: "Versatile", ipa: "/ˈvɜː.sə.taɪl/", meaning: "đa năng", example: "Maureen is a very versatile worker." },
+    { unit: "Unit 3", word: "Window shopping", ipa: "-", meaning: "đi xem hàng", example: "They often go window shopping at the mall." },
+
+    // Unit 4: Feelings [cite: 10]
+    { unit: "Unit 4", word: "Aggressive", ipa: "/əˈɡres.ɪv/", meaning: "hung hăng", example: "Someone who is aggressive may pick a fight." },
+    { unit: "Unit 4", word: "Anger", ipa: "/ˈæŋ.ɡər/", meaning: "sự giận dữ", example: "He found it hard to control his anger." },
+    { unit: "Unit 4", word: "Annoyance", ipa: "/əˈnɔɪ.əns/", meaning: "điều bực mình", example: "Mosquito bites were a great annoyance." },
+    { unit: "Unit 4", word: "Annoyed", ipa: "/əˈnɔɪd/", meaning: "bực mình", example: "They are annoyed when the cat keeps them awake." },
+    { unit: "Unit 4", word: "Annoying", ipa: "/əˈnɔɪ.ɪŋ/", meaning: "làm bực mình", example: "It's annoying when a train is late." },
+    { unit: "Unit 4", word: "Assertive", ipa: "/əˈsɜː.tɪv/", meaning: "quả quyết, tự tin", example: "You'll have to be more assertive at work." },
+    { unit: "Unit 4", word: "Attitude", ipa: "/ˈæt.ɪ.tʃuːd/", meaning: "thái độ", example: "Each investor should assess their own attitude." },
+    { unit: "Unit 4", word: "Blue", ipa: "/bluː/", meaning: "buồn bã", example: "Don't look so blue, smile!" },
+    { unit: "Unit 4", word: "Boredom", ipa: "/ˈbɔː.dəm/", meaning: "sự buồn chán", example: "I felt boredom while waiting in line." },
+    { unit: "Unit 4", word: "Broken-hearted", ipa: "/ˌbrəʊ.kənˈhɑː.tɪd/", meaning: "đau khổ", example: "She was broken-hearted after the breakup." },
+    { unit: "Unit 4", word: "Calm down", ipa: "-", meaning: "bình tĩnh lại", example: "Calm down! It's nothing to get excited about." },
+    { unit: "Unit 4", word: "Cheer up", ipa: "-", meaning: "làm vui lên", example: "I gave her flowers to cheer her up." },
+    { unit: "Unit 4", word: "Concentrate", ipa: "/ˈkɒn.sən.treɪt/", meaning: "tập trung", example: "I began to concentrate on taking photos." },
+    { unit: "Unit 4", word: "Considerate", ipa: "/kənˈsɪd.ər.ət/", meaning: "ân cần, chu đáo", example: "He was always a kind and considerate host." },
+    { unit: "Unit 4", word: "Disgust", ipa: "/dɪsˈɡʌst/", meaning: "sự ghê tởm", example: "She walked out in disgust." },
+    { unit: "Unit 4", word: "Disgusting", ipa: "/dɪsˈɡʌstɪŋ/", meaning: "kinh tởm", example: "This curry tastes disgusting." },
+    { unit: "Unit 4", word: "Distract", ipa: "/dɪˈstrækt/", meaning: "làm sao lãng", example: "I was distracted by the loud music." },
+    { unit: "Unit 4", word: "Embarrassing", ipa: "/ɪmˈbær.ə.sɪŋ/", meaning: "đáng xấu hổ", example: "It was so embarrassing when I fell!" },
+    { unit: "Unit 4", word: "Emotion", ipa: "/ɪˈməʊ.ʃən/", meaning: "cảm xúc", example: "Anger is a common emotion we all feel." },
+    { unit: "Unit 4", word: "Excitement", ipa: "/ɪkˈsaɪt.mənt/", meaning: "sự hào hứng", example: "You can feel the excitement in the air." },
+    { unit: "Unit 4", word: "Fear", ipa: "/fɪər/", meaning: "sự sợ hãi", example: "A fear of flying affects many people." },
+    { unit: "Unit 4", word: "Frightening", ipa: "/ˈfraɪ.tən.ɪŋ/", meaning: "đáng sợ", example: "Although the film was frightening, I enjoyed it." },
+    { unit: "Unit 4", word: "Improve", ipa: "/ɪmˈpruːv/", meaning: "cải thiện", example: "We are working to improve the software." },
+    { unit: "Unit 4", word: "Mechanical", ipa: "/məˈkæn.ɪ.kəl/", meaning: "thuộc máy móc", example: "It takes mechanical skill to build a house." },
+    { unit: "Unit 4", word: "Observe", ipa: "/əbˈzɜːv/", meaning: "quan sát", example: "Brian observed the sun rising over mountains." },
+    { unit: "Unit 4", word: "Open-minded", ipa: "/ˌəʊpən ˈmaɪndɪd/", meaning: "cởi mở", example: "Doctors are more open-minded nowadays." },
+    { unit: "Unit 4", word: "Personality", ipa: "/ˌpɜː.sənˈæl.ə.ti/", meaning: "tính cách", example: "She has got a lovely personality." },
+    { unit: "Unit 4", word: "Relaxation", ipa: "/ˌriː.lækˈseɪ.ʃən/", meaning: "hoạt động nghỉ ngơi", example: "Music provides good relaxation before bed." },
+    { unit: "Unit 4", word: "Relaxing", ipa: "/rɪˈlæk.sɪŋ/", meaning: "làm thư giãn", example: "Nothing is more relaxing than music." },
+    { unit: "Unit 4", word: "Slow down", ipa: "-", meaning: "thư giãn nhiều hơn", example: "She needs to slow down or she'll get sick." },
+    { unit: "Unit 4", word: "Stressful", ipa: "/ˈstres.fəl/", meaning: "gây căng thẳng", example: "Preparing for tests is really stressful." },
+    { unit: "Unit 4", word: "Surprising", ipa: "/səˈpraɪ.zɪŋ/", meaning: "làm ngạc nhiên", example: "He gave a quite surprising answer." },
+    { unit: "Unit 4", word: "Sympathetic", ipa: "/ˌsɪm.pəˈθet.ɪk/", meaning: "thông cảm", example: "She was sympathetic about my problem." },
+    { unit: "Unit 4", word: "Sympathy", ipa: "/ˈsɪm.pə.θi/", meaning: "sự thông cảm", example: "I felt sympathy for my sister." },
+    { unit: "Unit 4", word: "Turn down", ipa: "-", meaning: "vặn nhỏ lại", example: "Could you turn the music down?" },
+    { unit: "Unit 4", word: "Turn off", ipa: "-", meaning: "tắt", example: "Please turn off the lights before leaving." },
+    { unit: "Unit 4", word: "Turn on", ipa: "-", meaning: "bật", example: "I'll turn on the TV now." },
+    { unit: "Unit 4", word: "Turn up", ipa: "-", meaning: "vặn to lên", example: "Can you turn up the TV? I can hardly hear." },
+    { unit: "Unit 4", word: "Worried", ipa: "/ˈwʌr.id/", meaning: "lo lắng", example: "The boy looks worried about being late." },
+
+    // Unit 5: English and world discovery [cite: 12]
+    { unit: "Unit 5", word: "Accelerate", ipa: "/əkˈsel.ə.reɪt/", meaning: "tăng tốc", example: "The airplane will accelerate to take off." },
+    { unit: "Unit 5", word: "Accessible", ipa: "/əkˈses.ə.bəl/", meaning: "có thể tiếp cận", example: "The resort is easily accessible by road." },
+    { unit: "Unit 5", word: "Alien", ipa: "/ˈeɪ.li.ən/", meaning: "người ngoài hành tinh", example: "They saw an alien spacecraft last night." },
+    { unit: "Unit 5", word: "Antibiotic", ipa: "/ˌæn.ti.baɪˈɒt.ɪk/", meaning: "thuốc kháng sinh", example: "The first antibiotic to be discovered was penicillin." },
+    { unit: "Unit 5", word: "Capsule", ipa: "/ˈkæp.sjuːl/", meaning: "khoang tàu vũ trụ", example: "Astronauts travel into space in a capsule." },
+    { unit: "Unit 5", word: "Collaborate", ipa: "/kəˈlæb.ə.reɪt/", meaning: "cộng tác", example: "Let's collaborate on this project." },
+    { unit: "Unit 5", word: "Cure", ipa: "/kjʊər/", meaning: "chữa khỏi", example: "She was miraculously cured." },
+    { unit: "Unit 5", word: "Discovery", ipa: "/dɪˈsʌv.ər.i/", meaning: "sự khám phá", example: "The discovery of gold changed everything." },
+    { unit: "Unit 5", word: "Documentation", ipa: "/ˌdɒk.jə.menˈteɪ.ʃən/", meaning: "tài liệu, giấy tờ", example: "Proper documentation is essential for a loan." },
+    { unit: "Unit 5", word: "Electricity", ipa: "/ˌel.ɪkˈtrɪs.ə.ti/", meaning: "điện", example: "We use energy sources to make electricity." },
+    { unit: "Unit 5", word: "Enable", ipa: "/ɪˈneɪ.bəl/", meaning: "làm cho có thể", example: "Having the key enabled us to open the door." },
+    { unit: "Unit 5", word: "Epidemic", ipa: "/ˌep.ɪˈdem.ɪk/", meaning: "bệnh dịch", example: "Many people died during the flu epidemic." },
+    { unit: "Unit 5", word: "Experiment", ipa: "/ɪkˈsper.ɪ.ment/", meaning: "làm thí nghiệm", example: "Product developers conduct many experiments." },
+    { unit: "Unit 5", word: "Extinct", ipa: "/ɪkˈstɪŋkt/", meaning: "tuyệt chủng", example: "The dodo bird is an extinct species." },
+    { unit: "Unit 5", word: "Gravity", ipa: "/ˈɡræv.ə.ti/", meaning: "trọng lực", example: "There is no gravity in space." },
+    { unit: "Unit 5", word: "Headache", ipa: "/ˈhed.eɪk/", meaning: "vấn đề hóc búa", example: "Finding a babysitter will be a major headache." },
+    { unit: "Unit 5", word: "In favour of", ipa: "-", meaning: "ủng hộ", example: "Are you in favour of a ban on smoking?" },
+    { unit: "Unit 5", word: "Meteor", ipa: "/ˈmiː.ti.ɔːr/", meaning: "sao băng", example: "We saw a meteor in the sky last night." },
+    { unit: "Unit 5", word: "Microchip", ipa: "/ˈmaɪ.krəʊ.tʃɪp/", meaning: "vi mạch", example: "A microchip stores electronic information." },
+    { unit: "Unit 5", word: "Radar", ipa: "/ˈreɪ.dɑːr/", meaning: "hệ thống ra-đa", example: "An airport uses radar to locate planes." },
+    { unit: "Unit 5", word: "Species", ipa: "/ˈspiː.ʃiːz/", meaning: "giống, loài", example: "The area is rich in different plant species." },
+    { unit: "Unit 5", word: "Threat", ipa: "/θret/", meaning: "sự đe dọa", example: "There was a threat of a bad storm." },
+    { unit: "Unit 5", word: "Universal", ipa: "/ˌjuː.nɪˈvɜː.səl/", meaning: "phổ quát, chung", example: "Food is a subject of universal interest." },
+
+    // Unit 6: The self [cite: 14]
+    { unit: "Unit 6", word: "Ability", ipa: "/əˈbɪl.ə.ti/", meaning: "khả năng", example: "The ability to work with others is key." },
+    { unit: "Unit 6", word: "Adventurous", ipa: "/ədˈven.tʃər.əs/", meaning: "liều lĩnh, phiêu lưu", example: "She led an adventurous life." },
+    { unit: "Unit 6", word: "Beneficial", ipa: "/ˌben.ɪˈfɪʃ.əl/", meaning: "có ích lợi", example: "Exercise is beneficial for physical health." },
+    { unit: "Unit 6", word: "Breakthrough", ipa: "/ˈbreɪk.θruː/", meaning: "bước đột phá", example: "Scientists hope for a breakthrough in cancer cure." },
+    { unit: "Unit 6", word: "Bully", ipa: "/ˈbʊl.i/", meaning: "kẻ bắt nạt", example: "The bullies picked on the smaller kids." },
+    { unit: "Unit 6", word: "Challenge", ipa: "/ˈtʃæl.ɪndʒ/", meaning: "thách thức", example: "Going on expeditions is a great challenge." },
+    { unit: "Unit 6", word: "Confidence", ipa: "/ˈkɒn.fɪ.dəns/", meaning: "sự tự tin", example: "Good applicants show confidence in interviews." },
+    { unit: "Unit 6", word: "Conform", ipa: "/kənˈfɔːm/", meaning: "tuân theo", example: "Employees must conform to the dress code." },
+    { unit: "Unit 6", word: "Couch potato", ipa: "-", meaning: "người lười vận động", example: "He's a couch potato; he watches TV all day." },
+    { unit: "Unit 6", word: "Dreamer", ipa: "/ˈdriː.mər/", meaning: "người mơ mộng", example: "His father said the boy was a dreamer." },
+    { unit: "Unit 6", word: "Easygoing", ipa: "/ˌiː.ziˈɡəʊ.ɪŋ/", meaning: "dễ tính", example: "He is a friendly, easygoing guy." },
+    { unit: "Unit 6", word: "Extrovert", ipa: "/ˈek.strə.vɜːt/", meaning: "người hướng ngoại", example: "Most sales people are extroverts." },
+    { unit: "Unit 6", word: "Hard-working", ipa: "/ˌhɑːdˈwɜː.kɪŋ/", meaning: "chăm chỉ", example: "They are always hard-working at school." },
+    { unit: "Unit 6", word: "Independence", ipa: "/ˌɪn.dɪˈpen.dəns/", meaning: "sự độc lập", example: "Sophia had a great feeling of independence." },
+    { unit: "Unit 6", word: "Introvert", ipa: "/ˈɪn.trə.vɜːt/", meaning: "người hướng nội", example: "As an introvert, she prefers being alone." },
+    { unit: "Unit 6", word: "Leader", ipa: "/ˈliː.dər/", meaning: "người dẫn đầu", example: "Microsoft is a world leader in software." },
+    { unit: "Unit 6", word: "Loner", ipa: "/ˈləʊ.nər/", meaning: "người sống lẻ loi", example: "He was always a loner at school." },
+    { unit: "Unit 6", word: "Nature", ipa: "/ˈneɪ.tʃər/", meaning: "thiên nhiên", example: "I enjoy spending time in nature." },
+    { unit: "Unit 6", word: "Optimist", ipa: "/ˈɒp.tɪ.mɪst/", meaning: "người lạc quan", example: "My brother is an optimist despite his problems." },
+    { unit: "Unit 6", word: "Pessimist", ipa: "/ˈpes.ɪ.mɪst/", meaning: "người bi quan", example: "Don't be such a pessimist!" },
+    { unit: "Unit 6", word: "Rebel", ipa: "/ˈreb.əl/", meaning: "người nổi loạn", example: "He was a rebel when he was a teenager." },
+    { unit: "Unit 6", word: "Responsibility", ipa: "/rɪˌspɒn.sɪˈbɪl.ə.ti/", meaning: "trách nhiệm", example: "Teens want more responsibility and freedom." },
+    { unit: "Unit 6", word: "Sociable", ipa: "/ˈsəʊ.ʃə.bəl/", meaning: "hòa đồng", example: "She was the most sociable person at the party." },
+
+    // Unit 7: On the streets [cite: 16]
+    { unit: "Unit 7", word: "Amusement park", ipa: "-", meaning: "công viên giải trí", example: "Dad takes me to the amusement park on Sundays." },
+    { unit: "Unit 7", word: "Antique", ipa: "/ænˈtiːk/", meaning: "cổ xưa", example: "Inside are rooms with antique tables and clocks." },
+    { unit: "Unit 7", word: "Arch", ipa: "/ɑːtʃ/", meaning: "vòm", example: "The entrance's curved arch rested on stone pillars." },
+    { unit: "Unit 7", word: "Arena", ipa: "/əˈriː.nə/", meaning: "vũ đài, trường đấu", example: "A large arena is a good venue for sports." },
+    { unit: "Unit 7", word: "Bury", ipa: "/ˈber.i/", meaning: "chôn cất", example: "They buried him under his favorite tree." },
+    { unit: "Unit 7", word: "Cuisine", ipa: "/kwɪˈziːn/", meaning: "ẩm thực", example: "The restaurant is famous for its unique cuisine." },
+    { unit: "Unit 7", word: "Destroy", ipa: "/dɪˈstrɔɪ/", meaning: "phá hủy", example: "The glass was destroyed." },
+    { unit: "Unit 7", word: "Distinctive", ipa: "/dɪˈstɪŋk.tɪv/", meaning: "khác biệt, đặc biệt", example: "He wears a distinctive hat that stands out." },
+    { unit: "Unit 7", word: "Elevated", ipa: "/ˈel.ɪ.veɪ.tɪd/", meaning: "được treo cao", example: "An elevated highway runs above our apartment." },
+    { unit: "Unit 7", word: "Excavate", ipa: "/ˈek.skə.veɪt/", meaning: "khai quật", example: "They brought equipment to excavate the area." },
+    { unit: "Unit 7", word: "Façade", ipa: "/fəˈsɑːd/", meaning: "mặt tiền tòa nhà", example: "Meet me in front of the museum’s main façade." },
+    { unit: "Unit 7", word: "Facility", ipa: "/fəˈsɪl.ə.ti/", meaning: "cơ sở vật chất", example: "The training facility is scheduled to open soon." },
+    { unit: "Unit 7", word: "Grand", ipa: "/ɡrænd/", meaning: "hùng vĩ, uy nghi", example: "The grand building impressed me with its size." },
+    { unit: "Unit 7", word: "Hoard", ipa: "/hɔːd/", meaning: "đồ tích trữ", example: "We found a hoard of tinned food in the basement." },
+    { unit: "Unit 7", word: "Interior", ipa: "/ɪnˈtɪə.ri.ər/", meaning: "phần bên trong", example: "The car's interior has leather seats." },
+    { unit: "Unit 7", word: "Leisure", ipa: "/ˈleʒ.ər/", meaning: "thời gian rảnh rỗi", example: "She took up painting in her leisure time." },
+    { unit: "Unit 7", word: "Locate", ipa: "/ləʊˈkeɪt/", meaning: "đặt ở đâu", example: "The station is located between the museum and park." },
+    { unit: "Unit 7", word: "Magnificent", ipa: "/mæɡˈnɪf.ɪ.sənt/", meaning: "tráng lệ", example: "Gulum has some magnificent ruins." },
+    { unit: "Unit 7", word: "Mural", ipa: "/ˈmjʊə.rəl/", meaning: "bức tranh tường", example: "A mural is painted directly on a wall." },
+    { unit: "Unit 7", word: "Pedestrian", ipa: "/pəˈdes.tri.ən/", meaning: "người đi bộ", example: "Pedestrians sheltered from the rain in doorways." },
+    { unit: "Unit 7", word: "Renovate", ipa: "/ˈren.ə.veɪt/", meaning: "tân trang, cải tạo", example: "The house was twice as big after being renovated." },
+    { unit: "Unit 7", word: "Restore", ipa: "/rɪˈstɔːr/", meaning: "khôi phục", example: "Cleaning restored the whiteness of my teeth." },
+    { unit: "Unit 7", word: "Ruin", ipa: "/ˈruː.ɪn/", meaning: "phế tích, tàn tích", example: "I visited some interesting ruins in Greece." },
+    { unit: "Unit 7", word: "Skatepark", ipa: "/ˈskeɪt.pɑːk/", meaning: "sân trượt ván", example: "The skatepark provides a safe space for skaters." },
+    { unit: "Unit 7", word: "Stunning", ipa: "/ˈstʌn.ɪŋ/", meaning: "cực kỳ ấn tượng", example: "He suffered a stunning defeat in the election." },
+    { unit: "Unit 7", word: "Unearth", ipa: "/ʌnˈɜːθ/", meaning: "đào lên, khai quật", example: "Human remains were unearthed at the site." },
+    { unit: "Unit 7", word: "Venue", ipa: "/ˈven.juː/", meaning: "địa điểm tổ chức", example: "A large arena is a good venue for sports." },
+    { unit: "Unit 7", word: "Vibrant", ipa: "/ˈvaɪ.brənt/", meaning: "sôi động", example: "She is a vibrant young performer." },
+    { unit: "Unit 7", word: "Walkway", ipa: "/ˈwɔː.kweɪ/", meaning: "vỉa hè", example: "The walkway through the park is beautiful." },
+
+    // Unit 8: Scary [cite: 18]
+    { unit: "Unit 8", word: "Ankle", ipa: "/ˈæŋkl/", meaning: "mắt cá chân", example: "I fell and sprained my ankle." },
+    { unit: "Unit 8", word: "Bruise", ipa: "/bruːz/", meaning: "vết bầm tím", example: "He had a huge bruise over his eye." },
+    { unit: "Unit 8", word: "Buzz", ipa: "/bʌz/", meaning: "kêu vo vo", example: "A bee makes a buzz sound." },
+    { unit: "Unit 8", word: "Command", ipa: "/kəˈmɑːnd/", meaning: "mệnh lệnh", example: "Run forward at my command!" },
+    { unit: "Unit 8", word: "Elbow", ipa: "/ˈel.bəʊ/", meaning: "khuỷu tay", example: "Her arm was bandaged from the elbow to the fingers." },
+    { unit: "Unit 8", word: "Excitement", ipa: "/ɪkˈsaɪt.mənt/", meaning: "sự hào hứng", example: "You can feel the excitement in the air." },
+    { unit: "Unit 8", word: "Extreme sport", ipa: "-", meaning: "thể thao mạo hiểm", example: "She loves taking part in extreme sports." },
+    { unit: "Unit 8", word: "Fatal", ipa: "/ˈfeɪ.təl/", meaning: "gây chết người", example: "They passed away in a fatal car crash." },
+    { unit: "Unit 8", word: "Frustrated", ipa: "/frʌsˈtreɪ.tɪd/", meaning: "nản lòng", example: "She felt frustrated after many failed attempts." },
+    { unit: "Unit 8", word: "Hopeless", ipa: "/ˈhəʊp.ləs/", meaning: "vô vọng", example: "It was a hopeless situation." },
+    { unit: "Unit 8", word: "Make do", ipa: "-", meaning: "miễn cưỡng chấp nhận", example: "We had to make do with what we had." },
+    { unit: "Unit 8", word: "Overcrowded", ipa: "/ˌəʊ.vəˈkraʊ.dɪd/", meaning: "quá đông đúc", example: "The dining room was overcrowded." },
+    { unit: "Unit 8", word: "Painful", ipa: "/ˈpeɪn.fəl/", meaning: "đau đớn", example: "The old photo brought back painful memories." },
+    { unit: "Unit 8", word: "Phobia", ipa: "/ˈfəʊ.bi.ə/", meaning: "sự ám ảnh", example: "Her phobia of spiders made her shudder." },
+    { unit: "Unit 8", word: "Repellent", ipa: "/rɪˈpel.ənt/", meaning: "chất xua đuổi", example: "Use mosquito repellent to avoid bites." },
+    { unit: "Unit 8", word: "Risky", ipa: "/ˈrɪs.ki/", meaning: "mạo hiểm", example: "It's too risky to cross the flooded river." },
+    { unit: "Unit 8", word: "Sprain", ipa: "/spreɪn/", meaning: "bong gân", example: "He stumbled and sprained his knee." },
+    { unit: "Unit 8", word: "Suggestion", ipa: "/səˈdʒes.tʃən/", meaning: "sự gợi ý", example: "Can I make a suggestion for dinner?" },
+    { unit: "Unit 8", word: "Thrilled", ipa: "/θrɪld/", meaning: "vui sướng", example: "Sarah was thrilled when she got the gift." },
+    { unit: "Unit 8", word: "Unpleasant", ipa: "/ʌnˈplez.ənt/", meaning: "khó chịu", example: "It was an unpleasant surprise for her." },
+    { unit: "Unit 8", word: "Ward off", ipa: "-", meaning: "tránh khỏi", example: "Take vitamin C to ward off colds." },
+    { unit: "Unit 8", word: "Wrist", ipa: "/rɪst/", meaning: "cổ tay", example: "I wear a watch around my wrist." }
+];
+
+function displayVocab(data) {
+    const grid = document.getElementById('vocabGrid');
+    grid.innerHTML = data.map(item => `
+        <div class="card">
+            <span class="unit-tag">${item.unit}</span>
+            <div class="word">${item.word}</div>
+            <div class="ipa">${item.ipa}</div>
+            <div class="meaning">${item.meaning}</div>
+            <div class="example">" ${item.example} "</div>
+        </div>
+    `).join('');
+}
+
+function filterVocab() {
+    const searchText = document.getElementById('searchBar').value.toLowerCase();
+    const selectedUnit = document.getElementById('unitFilter').value;
+    const filtered = vocabData.filter(item => {
+        const matchesSearch = item.word.toLowerCase().includes(searchText) || item.meaning.toLowerCase().includes(searchText);
+        const matchesUnit = selectedUnit === "all" || item.unit === selectedUnit;
+        return matchesSearch && matchesUnit;
+    });
+    displayVocab(filtered);
+}
+
+displayVocab(vocabData);
+</script>
+</body>
+</html>
