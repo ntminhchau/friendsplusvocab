@@ -3,92 +3,228 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Friends Plus 9 Flashcards</title>
+    <title>Friends Plus 9 Vocabulary</title>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #a8e6cf; --secondary: #ffaaa5; --accent: #ffd3b6; --bg: #fdfcfb; --text: #4a4a4a;
-        }
-        body { font-family: 'Quicksand', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 8px; }
-        
+        :root { --primary: #a8e6cf; --secondary: #ffaaa5; --accent: #ffd3b6; --bg: #fdfcfb; --text: #4a4a4a; }
+        body { font-family: 'Quicksand', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 10px; }
         header { text-align: center; padding: 20px 10px; background: linear-gradient(135deg, #a8e6cf 0%, #dcedc1 100%); border-radius: 15px; margin-bottom: 15px; }
         h1 { margin: 0; color: #447061; font-size: 1.4rem; }
-        
-        /* Hướng dẫn to hơn theo ý Bé Bi */
-        header p { 
-            font-size: 1.1rem; 
-            font-weight: 700; 
-            margin: 8px 0 0; 
-            color: #d17a74; 
-            text-shadow: 1px 1px 0px white;
-        }
+        header p { font-size: 1.1rem; font-weight: 700; margin: 8px 0 0; color: #d17a74; text-shadow: 1px 1px 0px white; }
 
-        .controls { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; position: sticky; top: 8px; z-index: 100; }
-        input, select { padding: 8px 15px; border: 2px solid var(--primary); border-radius: 20px; font-size: 0.9rem; outline: none; background: white; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .controls { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; position: sticky; top: 10px; z-index: 100; }
+        .mode-switch { display: flex; justify-content: center; gap: 5px; margin-bottom: 5px; }
+        .mode-btn { padding: 8px 15px; border-radius: 20px; border: 2px solid var(--primary); background: white; font-family: inherit; font-weight: 700; cursor: pointer; font-size: 0.85rem; transition: 0.3s; }
+        .mode-btn.active { background: var(--primary); color: #447061; border-color: #88c9b0; }
+        
+        input, select { padding: 8px 15px; border: 2px solid var(--primary); border-radius: 20px; font-size: 0.9rem; outline: none; background: white; }
 
         .vocab-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; max-width: 1200px; margin: 0 auto; }
-
-        /* Card siêu gọn */
-        .card { 
-            background: white; border-radius: 12px; padding: 10px 5px; 
-            border: 1px solid #eee; position: relative; cursor: pointer;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: all 0.2s ease-out;
-            min-height: 40px; /* Hạ thấp chiều cao tối thiểu */
-            text-align: center;
-        }
+        .card { background: white; border-radius: 12px; padding: 10px 5px; border: 1px solid #eee; position: relative; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.2s; min-height: 45px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .card:hover { border-color: var(--primary); transform: translateY(-2px); }
         
-        .card:hover { border-color: var(--primary); }
-
+        .card.expanded { grid-column: span 2; padding: 15px; border-color: var(--secondary); background: #fffafb; }
         .unit-tag { position: absolute; top: 3px; right: 5px; background: var(--secondary); color: white; padding: 1px 5px; border-radius: 8px; font-size: 0.5rem; font-weight: 700; }
+        .word { font-size: 0.95rem; color: #ff8b94; font-weight: 700; }
+        .card.expanded .word { font-size: 1.2rem; margin-bottom: 5px; color: #d17a74; border-bottom: 1px solid #ffaaa5; width: 100%; padding-bottom: 5px; }
 
-        .word { font-size: 0.95rem; color: #ff8b94; font-weight: 700; word-break: break-word; }
-
-        .details { display: none; width: 100%; margin-top: 8px; text-align: left; border-top: 1px dashed #eee; padding-top: 8px; }
-
-        /* Trạng thái mở rộng */
-        .card.expanded { border-color: var(--secondary); background-color: white; grid-column: span 2; padding: 15px; }
-        .card.expanded .word { font-size: 1.2rem; margin-bottom: 5px; color: #d17a74; }
+        .details { display: none; width: 100%; margin-top: 10px; padding-top: 5px; text-align: left; animation: fadeIn 0.3s ease; }
         .card.expanded .details { display: block; }
-
+        
+        /* Word Form Table */
+        .wf-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 5px; }
+        .wf-table td { padding: 6px 4px; border-bottom: 1px solid #f0f0f0; }
+        .wf-label { font-weight: 700; color: #557a95; width: 35%; }
+        
         .ipa { color: #aaa; font-size: 0.8rem; margin-bottom: 5px; font-family: sans-serif; }
-        .meaning { font-size: 0.9rem; color: #333; font-weight: 600; margin-bottom: 8px; padding-left: 8px; border-left: 3px solid var(--primary); }
-        .example { font-style: italic; font-size: 0.8rem; color: #666; background: #fdf5f5; padding: 8px; border-radius: 8px; line-height: 1.3; }
+        .meaning { font-size: 0.9rem; color: #333; font-weight: 600; border-left: 4px solid var(--primary); padding-left: 8px; margin-bottom: 8px; }
+        .example { font-style: italic; font-size: 0.8rem; color: #666; background: #fdf5f5; padding: 8px; border-radius: 8px; line-height: 1.4; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         @media (min-width: 768px) {
-            .vocab-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
-            .card.expanded { grid-column: auto; min-height: 150px; }
-            h1 { font-size: 2rem; }
+            .vocab-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
             .controls { flex-direction: row; justify-content: center; }
+            .card.expanded { grid-column: auto; }
         }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>📚 Friends Plus 9 Vocabulary</h1>
-    <p>👇 Chạm vào thẻ để xem nghĩa nhé!</p>
+    <h1>🌸 Friends Plus 9 Vocabulary</h1>
+    <p id="guide-text">👇 Click thẻ để xem Nghĩa & Ví dụ nhé!</p>
 </header>
 
 <div class="controls">
-    <input type="text" id="searchBar" placeholder="Tìm từ hoặc nghĩa..." onkeyup="filterVocab()">
-    <select id="unitFilter" onchange="filterVocab()">
+    <div class="mode-switch">
+        <button class="mode-btn active" id="btn-vocab" onclick="setMode('vocab')">Từ vựng 📖</button>
+        <button class="mode-btn" id="btn-wf" onclick="setMode('wf')">Word Form 🧩</button>
+    </div>
+    <input type="text" id="searchBar" placeholder="Tìm từ..." onkeyup="render()">
+    <select id="unitFilter" onchange="render()">
         <option value="all">Tất cả Unit</option>
+        <option value="1">Unit 1</option><option value="2">Unit 2</option>
+        <option value="3">Unit 3</option><option value="4">Unit 4</option>
+        <option value="5">Unit 5</option><option value="6">Unit 6</option>
+        <option value="7">Unit 7</option><option value="8">Unit 8</option>
         <option value="Starter">Starter Unit</option>
-        <option value="Unit 1">Unit 1: Then and now</option>
-        <option value="Unit 2">Unit 2: Lifestyles</option>
-        <option value="Unit 3">Unit 3: Our surroundings</option>
-        <option value="Unit 4">Unit 4: Feelings</option>
-        <option value="Unit 5">Unit 5: Discovery</option>
-        <option value="Unit 6">Unit 6: The self</option>
-        <option value="Unit 7">Unit 7: On the streets</option>
-        <option value="Unit 8">Unit 8: Scary</option>
     </select>
 </div>
 
-<div class="vocab-grid" id="vocabGrid"></div>
+<div class="vocab-grid" id="mainGrid"></div>
 
 <script>
+let currentMode = 'vocab';
+
+const wordFormData = [
+    // Unit 1
+    { unit: "1", word: "Afford", n: "affordability", v: "afford", adj: "affordable", adv: "affordably" },
+    { unit: "1", word: "Amaze", n: "amazement", v: "amaze", adj: "amazing", adv: "amazingly" },
+    { unit: "1", word: "Choose", n: "choice", v: "choose", adj: "-", adv: "-" },
+    { unit: "1", word: "Compete", n: "competition", v: "compete", adj: "competitive", adv: "competitively" },
+    { unit: "1", word: "Convenience", n: "convenience", v: "-", adj: "convenient", adv: "conveniently" },
+    { unit: "1", word: "Describe", n: "description", v: "describe", adj: "descriptive", adv: "descriptively" },
+    { unit: "1", word: "Develop", n: "development", v: "develop", adj: "developing / developed", adv: "-" },
+    { unit: "1", word: "Efficiency", n: "efficiency", v: "-", adj: "efficient", adv: "efficiently" },
+    { unit: "1", word: "Experience", n: "experience", v: "experience", adj: "experienced", adv: "-" },
+    { unit: "1", word: "Fame", n: "fame", v: "-", adj: "famous", adv: "famously" },
+    { unit: "1", word: "Importance", n: "importance", v: "-", adj: "important", adv: "importantly" },
+    { unit: "1", word: "Popularity", n: "popularity", v: "popularize", adj: "popular", adv: "popularly" },
+    { unit: "1", word: "Recognition", n: "recognition", v: "recognize", adj: "recognizable", adv: "recognizably" },
+    { unit: "1", word: "Remind", n: "reminder", v: "remind", adj: "-", adv: "-" },
+    { unit: "1", word: "Specialty", n: "specialty", v: "specialize", adj: "special", adv: "specially" },
+    { unit: "1", word: "Variety", n: "variety", v: "vary", adj: "various", adv: "variously" },
+    { unit: "1", word: "Destruction", n: "destruction", v: "destroy", adj: "destructive", adv: "destructively" },
+    // Unit 2
+    { unit: "2", word: "Decision", n: "decision", v: "decide", adj: "decisive", adv: "decisively" },
+    { unit: "2", word: "Participation", n: "participation / participant", v: "participate", adj: "-", adv: "-" },
+    { unit: "2", word: "Hesitation", n: "hesitation", v: "hesitate", adj: "hesitant", adv: "hesitantly" },
+    { unit: "2", word: "Consideration", n: "consideration", v: "consider", adj: "considerate", adv: "considerately" },
+    { unit: "2", word: "Possibility", n: "possibility", v: "-", adj: "possible", adv: "possibly" },
+    { unit: "2", word: "Commitment", n: "commitment", v: "commit", adj: "committed", adv: "-" },
+    { unit: "2", word: "Interest", n: "interest", v: "interest (v)", adj: "interested / interesting", adv: "interestingly" },
+    { unit: "2", word: "Environment", n: "environment / environmentalist", v: "-", adj: "environmental", adv: "environmentally" },
+    { unit: "2", word: "Product", n: "product / production", v: "produce", adj: "productive", adv: "productively" },
+    { unit: "2", word: "Management", n: "management / manager", v: "manage", adj: "manageable", adv: "manageably" },
+    { unit: "2", word: "Reduction", n: "reduction", v: "reduce", adj: "reduced (a)", adv: "-" },
+    { unit: "2", word: "Activity", n: "activity / activist", v: "activate", adj: "active", adv: "actively" },
+    { unit: "2", word: "Proposal", n: "proposal", v: "propose", adj: "-", adv: "-" },
+    { unit: "2", word: "Responsibility", n: "responsibility", v: "-", adj: "responsible", adv: "responsibly" },
+    { unit: "2", word: "Agreement", n: "agreement", v: "agree", adj: "agreeable", adv: "agreeably" },
+    // Unit 3
+    { unit: "3", word: "Afford", n: "affordability", v: "afford", adj: "affordable", adv: "affordably" },
+    { unit: "3", word: "Arrival", n: "arrival", v: "arrive", adj: "-", adv: "-" },
+    { unit: "3", word: "Cost", n: "cost (n)", v: "cost (v)", adj: "costly", adv: "-" },
+    { unit: "3", word: "Medicine", n: "medicine", v: "medicate", adj: "medical", adv: "medically" },
+    { unit: "3", word: "Expense", n: "expense", v: "-", adj: "expensive / inexpensive", adv: "expensively" },
+    { unit: "3", word: "Value", n: "value", v: "value (v)", adj: "valuable / valueless", adv: "valuably" },
+    { unit: "3", word: "Calculation", n: "calculation", v: "calculate", adj: "calculable", adv: "-" },
+    { unit: "3", word: "Luxury", n: "luxury", v: "luxuriate + (in)", adj: "luxurious", adv: "luxuriously" },
+    { unit: "3", word: "Consumer", n: "consumer", v: "consume", adj: "consuming", adv: "-" },
+    { unit: "3", word: "Pollution", n: "pollution", v: "pollute", adj: "polluted / unpolluted", adv: "-" },
+    { unit: "3", word: "Advertisement", n: "advertisement / advertiser", v: "advertise", adj: "-", adv: "-" },
+    { unit: "3", word: "Influence", n: "influence / influencer", v: "influence", adj: "influential", adv: "influentially" },
+    { unit: "3", word: "Imagination", n: "imagination", v: "imagine", adj: "imaginable", adv: "imaginably" },
+    { unit: "3", word: "Necessity", n: "necessity", v: "necessitate", adj: "necessary", adv: "necessarily" },
+    { unit: "3", word: "Promotion", n: "promotion / promoter", v: "promote", adj: "promotional", adv: "-" },
+    { unit: "3", word: "Attendance", n: "attendance / attendee", v: "attend", adj: "attentive", adv: "attentively" },
+    { unit: "3", word: "Assistance", n: "assistance / assistant", v: "assist", adj: "assistant + (job)", adv: "-" },
+    // Unit 4
+    { unit: "4", word: "Anger", n: "anger", v: "anger", adj: "angry", adv: "angrily" },
+    { unit: "4", word: "Annoyance", n: "annoyance", v: "annoy", adj: "annoying / annoyed", adv: "annoyingly" },
+    { unit: "4", word: "Appearance", n: "appearance", v: "appear", adj: "-", adv: "-" },
+    { unit: "4", word: "Behaviour", n: "behaviour", v: "behave", adj: "behavioural", adv: "behaviourally" },
+    { unit: "4", word: "Boredom", n: "boredom", v: "bore", adj: "boring / bored", adv: "boringly" },
+    { unit: "4", word: "Difficulty", n: "difficulty", v: "-", adj: "difficult", adv: "difficultly" },
+    { unit: "4", word: "Embarrassment", n: "embarrassment", v: "embarrass", adj: "embarrassing / embarrassed", adv: "embarrassingly" },
+    { unit: "4", word: "Emotion", n: "emotion", v: "-", adj: "emotional", adv: "emotionally" },
+    { unit: "4", word: "Excellence", n: "excellence", v: "excel", adj: "excellent", adv: "excellently" },
+    { unit: "4", word: "Excitement", n: "excitement", v: "excite", adj: "exciting", adv: "excitingly" },
+    { unit: "4", word: "Identification", n: "identification", v: "identify", adj: "identifiable", adv: "-" },
+    { unit: "4", word: "Instruction", n: "instruction / instructor", v: "instruct", adj: "instructive", adv: "instructively" },
+    { unit: "4", word: "Mechanism", n: "mechanism / mechanic", v: "mechanize", adj: "mechanical", adv: "mechanically" },
+    { unit: "4", word: "Personality", n: "personality", v: "personalize", adj: "personal", adv: "personally" },
+    { unit: "4", word: "Realization", n: "realization", v: "realize", adj: "realizable", adv: "-" },
+    { unit: "4", word: "Scientist", n: "scientist", v: "-", adj: "scientific", adv: "scientifically" },
+    { unit: "4", word: "Surprise", n: "surprise", v: "surprise", adj: "surprising / surprised", adv: "surprisingly" },
+    { unit: "4", word: "Sympathy", n: "sympathy", v: "sympathize", adj: "sympathetic", adv: "sympathetically" },
+    // Unit 5
+    { unit: "5", word: "Accident", n: "accident", v: "-", adj: "accidental", adv: "accidentally" },
+    { unit: "5", word: "Adaptation", n: "adaptation", v: "adapt", adj: "adaptable", adv: "-" },
+    { unit: "5", word: "Advancement", n: "advancement", v: "advance", adj: "advanced", adv: "-" },
+    { unit: "5", word: "Collaboration", n: "collaboration / collaborator", v: "collaborate", adj: "collaborative", adv: "collaboratively" },
+    { unit: "5", word: "Comfort", n: "comfort", v: "comfort", adj: "(un)comfortable", adv: "comfortably" },
+    { unit: "5", word: "Communication", n: "communication", v: "communicate", adj: "communicative", adv: "-" },
+    { unit: "5", word: "Creation", n: "creation", v: "create", adj: "creative", adv: "creatively" },
+    { unit: "5", word: "Design", n: "design / designer", v: "design", adj: "-", adv: "-" },
+    { unit: "5", word: "Detection", n: "detection", v: "detect", adj: "detectable", adv: "-" },
+    { unit: "5", word: "Discovery", n: "discovery", v: "discover", adj: "discoverable", adv: "-" },
+    { unit: "5", word: "Electricity", n: "electricity / electrician", v: "electrify", adj: "electric / electrical", adv: "electrically" },
+    { unit: "5", word: "Employment", n: "employment", v: "employ", adj: "employable / (un)employed", adv: "-" },
+    { unit: "5", word: "Exploration", n: "exploration / explorer", v: "explore", adj: "exploratory", adv: "-" },
+    { unit: "5", word: "Invention", n: "invention / inventor", v: "invent", adj: "inventive", adv: "-" },
+    { unit: "5", word: "Memory", n: "memory", v: "memorize", adj: "memorable", adv: "memorably" },
+    { unit: "5", word: "Mixture", n: "mixture", v: "mix", adj: "mixed", adv: "-" },
+    { unit: "5", word: "Modernization", n: "modernization", v: "modernize", adj: "modern", adv: "modernly" },
+    { unit: "5", word: "Pharmacy", n: "pharmacy / pharmacist", v: "-", adj: "-", adv: "-" },
+    { unit: "5", word: "Translation", n: "translation / translator", v: "translate", adj: "-", adv: "-" },
+    // Unit 6
+    { unit: "6", word: "Adventure", n: "adventure", v: "-", adj: "adventurous", adv: "adventurously" },
+    { unit: "6", word: "Benefit", n: "benefit", v: "benefit (v)", adj: "beneficial", adv: "beneficially" },
+    { unit: "6", word: "Challenge", n: "challenge / challenger", v: "challenge (v)", adj: "challenging", adv: "challengingly" },
+    { unit: "6", word: "Confidence", n: "confidence", v: "-", adj: "confident", adv: "confidently" },
+    { unit: "6", word: "Conformity", n: "conformity / conformist", v: "conform", adj: "conformist", adv: "-" },
+    { unit: "6", word: "Independence", n: "dependence / independence", v: "depend", adj: "dependent", adv: "dependently" },
+    { unit: "6", word: "Difference", n: "difference", v: "differentiate", adj: "different", adv: "differently" },
+    { unit: "6", word: "Expectation", n: "expectation", v: "expect", adj: "expectant", adv: "expectantly" },
+    { unit: "6", word: "Imagination", n: "imagination", v: "imagine", adj: "imaginative", adv: "imaginatively" },
+    { unit: "6", word: "Information", n: "information", v: "inform", adj: "informative", adv: "informatively" },
+    { unit: "6", word: "Leader", n: "leader", v: "lead", adj: "leading", adv: "-" },
+    { unit: "6", word: "Occasion", n: "occasion", v: "occasion (v)", adj: "occasional", adv: "occasionally" },
+    { unit: "6", word: "Person", n: "person / personality", v: "-", adj: "personal", adv: "personally" },
+    { unit: "6", word: "Pride", n: "pride", v: "-", adj: "proud", adv: "proudly" },
+    { unit: "6", word: "Realist", n: "realist", v: "-", adj: "realistic", adv: "realistically" },
+    { unit: "6", word: "Reward", n: "reward", v: "reward", adj: "rewarding", adv: "-" },
+    // Unit 7
+    { unit: "7", word: "Amusement", n: "amusement", v: "amuse", adj: "amusing / amused", adv: "amusingly" },
+    { unit: "7", word: "Industry", n: "industry", v: "industrialize", adj: "industrial", adv: "industrially" },
+    { unit: "7", word: "Music", n: "music", v: "-", adj: "musical", adv: "musically" },
+    { unit: "7", word: "Space", n: "space", v: "space (arrange)", adj: "spacious", adv: "spaciously" },
+    { unit: "7", word: "Transformation", n: "transformation", v: "transform", adj: "transformative", adv: "-" },
+    { unit: "7", word: "Exhibition", n: "exhibition", v: "exhibit", adj: "-", adv: "-" },
+    { unit: "7", word: "Importance", n: "importance", v: "-", adj: "important", adv: "importantly" },
+    { unit: "7", word: "Talent", n: "talent", v: "-", adj: "talented", adv: "-" },
+    { unit: "7", word: "Colour", n: "colour", v: "colorize", adj: "colourful", adv: "colourfully" },
+    { unit: "7", word: "Distinctiveness", n: "distinctiveness", v: "-", adj: "distinctive", adv: "distinctively" },
+    { unit: "7", word: "Competition", n: "competition / competitor", v: "compete", adj: "competitive", adv: "competitively" },
+    { unit: "7", word: "Business", n: "business", v: "busy (oneself with)", adj: "busy", adv: "busily" },
+    { unit: "7", word: "Expense", n: "expense", v: "-", adj: "expensive", adv: "expensively" },
+    { unit: "7", word: "Power", n: "power", v: "empower", adj: "powerful", adv: "powerfully" },
+    { unit: "7", word: "Boredom", n: "boredom", v: "bore (sb)", adj: "bored / boring", adv: "boredly" },
+    { unit: "7", word: "Inspiration", n: "inspiration", v: "inspire", adj: "inspirational", adv: "inspirationally" },
+    { unit: "7", word: "Tradition", n: "tradition", v: "-", adj: "traditional", adv: "traditionally" },
+    { unit: "7", word: "Admiration", n: "admiration", v: "admire", adj: "admirable", adv: "admirably" },
+    // Unit 8
+    { unit: "8", word: "Adventure", n: "adventure", v: "-", adj: "adventurous", adv: "adventurously" },
+    { unit: "8", word: "Danger", n: "danger", v: "endanger", adj: "dangerous / endangered", adv: "dangerously" },
+    { unit: "8", word: "Excitement", n: "excitement", v: "excite", adj: "exciting / excited", adv: "excitedly" },
+    { unit: "8", word: "Fascination", n: "fascination", v: "fascinate", adj: "fascinating / fascinated", adv: "fascinatingly" },
+    { unit: "8", word: "Fright", n: "fright", v: "frighten", adj: "frightening / frightened", adv: "frighteningly" },
+    { unit: "8", word: "Hospitality", n: "hospitality", v: "-", adj: "hospitable", adv: "hospitably" },
+    { unit: "8", word: "Importance", n: "importance", v: "-", adj: "important", adv: "importantly" },
+    { unit: "8", word: "Injection", n: "injection", v: "inject", adj: "injectable", adv: "-" },
+    { unit: "8", word: "Pain", n: "pain", v: "pain", adj: "painful", adv: "painfully" },
+    { unit: "8", word: "Performance", n: "performance / performer", v: "perform", adj: "-", adv: "-" },
+    { unit: "8", word: "Pleasant", n: "-", v: "-", adj: "pleasant", adv: "pleasantly" },
+    { unit: "8", word: "Pollution", n: "pollution", v: "pollute", adj: "polluted", adv: "-" },
+    { unit: "8", word: "Preparation", n: "preparation", v: "prepare", adj: "prepared", adv: "-" },
+    { unit: "8", word: "Risk", n: "risk", v: "risk", adj: "risky", adv: "-" },
+    { unit: "8", word: "Scare", n: "scare", v: "scare", adj: "scary / scared", adv: "scarily" },
+    { unit: "8", word: "Suggestion", n: "suggestion", v: "suggest", adj: "-", adv: "-" },
+    { unit: "8", word: "Treatment", n: "treatment", v: "treat", adj: "treatable", adv: "-" }
+];
+    
 const vocabData = [
     // Starter Unit [cite: 2]
     { unit: "Starter", word: "Calculator", ipa: "/ˈkæl.kjə.leɪ.tər/", meaning: "máy tính (để tính toán)", example: "I used the calculator app on my phone." },
@@ -438,38 +574,59 @@ const vocabData = [
     { unit: "Unit 8", word: "Wrist", ipa: "/rɪst/", meaning: "cổ tay", example: "I wear a watch around my wrist." }
 ];
 
-function displayVocab(data) {
-    const grid = document.getElementById('vocabGrid');
-    grid.innerHTML = data.map(item => `
-        <div class="card" onclick="toggleCard(this)">
-            <span class="unit-tag">${item.unit}</span>
-            <div class="word">${item.word}</div>
-            <div class="details">
-                <div class="ipa">${item.ipa}</div>
-                <div class="meaning">${item.meaning}</div>
-                <div class="example">" ${item.example} "</div>
-            </div>
-        </div>
-    `).join('');
+function setMode(mode) {
+    currentMode = mode;
+    document.getElementById('btn-vocab').classList.toggle('active', mode === 'vocab');
+    document.getElementById('btn-wf').classList.toggle('active', mode === 'wf');
+    document.getElementById('guide-text').innerText = mode === 'vocab' ? "👇 Chạm để xem Nghĩa & Ví dụ nhé!" : "👇 Chạm để xem các dạng từ (N/V/Adj/Adv)";
+    render();
 }
 
-function toggleCard(card) {
-    card.classList.toggle('expanded');
-}
+function toggleCard(card) { card.classList.toggle('expanded'); }
 
-function filterVocab() {
-    const searchText = document.getElementById('searchBar').value.toLowerCase();
-    const selectedUnit = document.getElementById('unitFilter').value;
-    const filtered = vocabData.filter(item => {
-        const matchesSearch = item.word.toLowerCase().includes(searchText) || item.meaning.toLowerCase().includes(searchText);
-        const matchesUnit = selectedUnit === "all" || item.unit === selectedUnit;
-        return matchesSearch && matchesUnit;
+function render() {
+    const search = document.getElementById('searchBar').value.toLowerCase();
+    const unit = document.getElementById('unitFilter').value;
+    const grid = document.getElementById('mainGrid');
+    
+    let data = currentMode === 'vocab' ? vocabData : wordFormData;
+    let filtered = data.filter(item => {
+        const matchUnit = unit === 'all' || item.unit === unit;
+        const matchSearch = item.word.toLowerCase().includes(search);
+        return matchUnit && matchSearch;
     }).sort((a,b) => a.word.localeCompare(b.word));
-    displayVocab(filtered);
+
+    grid.innerHTML = filtered.map(item => {
+        if (currentMode === 'vocab') {
+            return `
+                <div class="card" onclick="toggleCard(this)">
+                    <span class="unit-tag">U${item.unit}</span>
+                    <div class="word">${item.word}</div>
+                    <div class="details">
+                        <div class="ipa">${item.ipa}</div>
+                        <div class="meaning">${item.meaning}</div>
+                        <div class="example">" ${item.example} "</div>
+                    </div>
+                </div>`;
+        } else {
+            return `
+                <div class="card" onclick="toggleCard(this)">
+                    <span class="unit-tag">U${item.unit}</span>
+                    <div class="word">${item.word}</div>
+                    <div class="details">
+                        <table class="wf-table">
+                            <tr><td class="wf-label">Noun:</td><td>${item.n || '-'}</td></tr>
+                            <tr><td class="wf-label">Verb:</td><td>${item.v || '-'}</td></tr>
+                            <tr><td class="wf-label">Adj:</td><td>${item.adj || '-'}</td></tr>
+                            <tr><td class="wf-label">Adv:</td><td>${item.adv || '-'}</td></tr>
+                        </table>
+                    </div>
+                </div>`;
+        }
+    }).join('');
 }
 
-// Khởi tạo sắp xếp alphabet ngay từ đầu
-filterVocab();
+render();
 </script>
 </body>
 </html>
