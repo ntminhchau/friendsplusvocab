@@ -6,32 +6,68 @@
     <title>Friends Plus Vocab - Bé Bi English Class</title>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #a8e6cf; --secondary: #ffaaa5; --accent: #ffd3b6; --bg: #fdfcfb; --text: #5d5d5d;
-        }
-        body { font-family: 'Quicksand', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; line-height: 1.6; }
-        header { text-align: center; padding: 50px 20px; background: linear-gradient(135deg, #a8e6cf 0%, #dcedc1 100%); border-radius: 30px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(168,230,207,0.3); }
-        h1 { margin: 0; color: #447061; font-size: 2.2rem; }
-        .controls { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; margin-bottom: 40px; position: sticky; top: 15px; z-index: 100; }
-        input, select { padding: 12px 25px; border: 2px solid var(--primary); border-radius: 50px; outline: none; font-family: inherit; font-size: 1rem; background: white; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: 0.3s; }
-        input:focus { border-color: var(--secondary); transform: scale(1.02); }
-        .vocab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; max-width: 1200px; margin: 0 auto; }
-        .card { background: white; border-radius: 20px; padding: 25px; transition: 0.3s; border: 1px solid #f0f0f0; position: relative; display: flex; flex-direction: column; box-shadow: 0 10px 20px rgba(0,0,0,0.02); }
-        .card:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.08); border-color: var(--primary); }
-        .unit-tag { position: absolute; top: 15px; right: 15px; background: var(--secondary); color: white; padding: 3px 12px; border-radius: 15px; font-size: 0.75rem; font-weight: 700; }
-        .word { font-size: 1.5rem; color: #ff8b94; font-weight: 700; margin-bottom: 5px; }
-        .ipa { color: #a0a0a0; font-size: 0.9rem; margin-bottom: 12px; font-family: sans-serif; }
-        .meaning { color: #4a4a4a; font-weight: 600; margin-bottom: 15px; padding-left: 12px; border-left: 4px solid var(--primary); }
-        .example { font-style: italic; font-size: 0.9rem; color: #777; background: #f9fffb; padding: 12px; border-radius: 12px; border: 1px dashed #d1eadd; flex-grow: 1; }
-        footer { text-align: center; margin-top: 50px; padding: 20px; opacity: 0.6; font-size: 0.9rem; }
-        @media (max-width: 600px) { .controls input { width: 100%; } .vocab-grid { grid-template-columns: 1fr; } }
-    </style>
+    :root {
+        --primary: #a8e6cf; --secondary: #ffaaa5; --bg: #fdfcfb; --text: #4a4a4a;
+    }
+    body { font-family: 'Quicksand', sans-serif; background-color: var(--bg); margin: 0; padding: 10px; }
+    
+    header { text-align: center; padding: 25px 10px; background: linear-gradient(135deg, #a8e6cf 0%, #dcedc1 100%); border-radius: 20px; margin-bottom: 20px; }
+    h1 { margin: 0; color: #447061; font-size: 1.5rem; }
+    header p { font-size: 0.8rem; margin: 5px 0 0; }
+
+    .controls { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; position: sticky; top: 10px; z-index: 100; }
+    input, select { padding: 10px 15px; border: 2px solid var(--primary); border-radius: 25px; font-size: 0.9rem; outline: none; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+
+    /* Grid tối ưu: 2 cột trên di động, nhiều cột trên máy tính */
+    .vocab-grid { 
+        display: grid; 
+        grid-template-columns: repeat(2, 1fr); 
+        gap: 10px; 
+        max-width: 1200px; 
+        margin: 0 auto; 
+    }
+
+    .card { 
+        background: white; 
+        border-radius: 15px; 
+        padding: 12px; 
+        border: 1px solid #eee; 
+        position: relative; 
+        display: flex; 
+        flex-direction: column; 
+        transition: 0.2s;
+    }
+    
+    .unit-tag { 
+        position: absolute; top: 5px; right: 8px; 
+        background: var(--secondary); color: white; 
+        padding: 1px 6px; border-radius: 10px; font-size: 0.6rem; font-weight: 700; 
+    }
+
+    .word { font-size: 1.1rem; color: #ff8b94; font-weight: 700; margin-top: 10px; line-height: 1.2; }
+    .ipa { color: #aaa; font-size: 0.75rem; margin-bottom: 5px; font-family: sans-serif; }
+    .meaning { 
+        font-size: 0.85rem; color: var(--text); font-weight: 600; 
+        margin-bottom: 8px; padding-left: 8px; border-left: 3px solid var(--primary); 
+    }
+    .example { 
+        font-style: italic; font-size: 0.75rem; color: #888; 
+        background: #f9fffb; padding: 6px; border-radius: 8px; 
+        line-height: 1.3; border: 1px dashed #e0eadd;
+    }
+
+    /* Tablet và Desktop sẽ hiện nhiều cột hơn */
+    @media (min-width: 768px) {
+        .vocab-grid { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+        h1 { font-size: 2.2rem; }
+        .controls { flex-direction: row; justify-content: center; }
+    }
+</style>
 </head>
 <body>
 
 <header>
-    <h1>🌸 Friends Plus Dictionary</h1>
-    <p>Góc học tập nhỏ của cô <b>Bé Bi</b> và các bạn học sinh!</p>
+    <h1>🌸 Friends Plus 9 Vocabulary</h1>
 </header>
 
 <div class="controls">
@@ -52,7 +88,7 @@
 
 <div class="vocab-grid" id="vocabGrid"></div>
 
-<footer>Trang web được thiết kế với ❤️ dành cho học sinh của Bé Bi</footer>
+<footer>Ráng học để thi đậu nào ❤️</footer>
 
 <script>
 const vocabData = [
