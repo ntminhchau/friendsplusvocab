@@ -3,83 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Friends Plus Vocab - Bé Bi English Class</title>
+    <title>Friends Plus Flashcards</title>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-    :root {
-        --primary: #a8e6cf; --secondary: #ffaaa5; --bg: #fdfcfb; --text: #4a4a4a;
-    }
-    body { font-family: 'Quicksand', sans-serif; background-color: var(--bg); margin: 0; padding: 10px; }
-    
-    header { text-align: center; padding: 25px 10px; background: linear-gradient(135deg, #a8e6cf 0%, #dcedc1 100%); border-radius: 20px; margin-bottom: 20px; }
-    h1 { margin: 0; color: #447061; font-size: 1.5rem; }
-    header p { font-size: 0.8rem; margin: 5px 0 0; }
+        :root {
+            --primary: #a8e6cf; --secondary: #ffaaa5; --accent: #ffd3b6; --bg: #fdfcfb; --text: #4a4a4a;
+        }
+        body { font-family: 'Quicksand', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 10px; }
+        
+        header { text-align: center; padding: 25px 10px; background: linear-gradient(135deg, #a8e6cf 0%, #dcedc1 100%); border-radius: 20px; margin-bottom: 20px; box-shadow: 0 8px 20px rgba(168,230,207,0.2); }
+        h1 { margin: 0; color: #447061; font-size: 1.5rem; }
+        header p { font-size: 0.8rem; margin: 5px 0 0; opacity: 0.8; }
 
-    .controls { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; position: sticky; top: 10px; z-index: 100; }
-    input, select { padding: 10px 15px; border: 2px solid var(--primary); border-radius: 25px; font-size: 0.9rem; outline: none; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .controls { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; position: sticky; top: 10px; z-index: 100; }
+        input, select { padding: 10px 15px; border: 2px solid var(--primary); border-radius: 25px; font-size: 0.9rem; outline: none; background: white; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
 
-    /* Grid tối ưu: 2 cột trên di động, nhiều cột trên máy tính */
-    .vocab-grid { 
-        display: grid; 
-        grid-template-columns: repeat(2, 1fr); 
-        gap: 10px; 
-        max-width: 1200px; 
-        margin: 0 auto; 
-    }
+        .vocab-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; max-width: 1200px; margin: 0 auto; }
 
-    .card { 
-        background: white; 
-        border-radius: 15px; 
-        padding: 12px; 
-        border: 1px solid #eee; 
-        position: relative; 
-        display: flex; 
-        flex-direction: column; 
-        transition: 0.2s;
-    }
-    
-    .unit-tag { 
-        position: absolute; top: 5px; right: 8px; 
-        background: var(--secondary); color: white; 
-        padding: 1px 6px; border-radius: 10px; font-size: 0.6rem; font-weight: 700; 
-    }
+        /* Card Style - Thu gọn */
+        .card { 
+            background: white; border-radius: 15px; padding: 15px 10px; 
+            border: 1px solid #eee; position: relative; cursor: pointer;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            min-height: 60px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+        
+        .card:hover { border-color: var(--primary); background-color: #f9fffb; }
 
-    .word { font-size: 1.1rem; color: #ff8b94; font-weight: 700; margin-top: 10px; line-height: 1.2; }
-    .ipa { color: #aaa; font-size: 0.75rem; margin-bottom: 5px; font-family: sans-serif; }
-    .meaning { 
-        font-size: 0.85rem; color: var(--text); font-weight: 600; 
-        margin-bottom: 8px; padding-left: 8px; border-left: 3px solid var(--primary); 
-    }
-    .example { 
-        font-style: italic; font-size: 0.75rem; color: #888; 
-        background: #f9fffb; padding: 6px; border-radius: 8px; 
-        line-height: 1.3; border: 1px dashed #e0eadd;
-    }
+        /* Tag Unit nhỏ xinh */
+        .unit-tag { position: absolute; top: 5px; right: 8px; background: var(--secondary); color: white; padding: 1px 6px; border-radius: 10px; font-size: 0.55rem; font-weight: 700; }
 
-    /* Tablet và Desktop sẽ hiện nhiều cột hơn */
-    @media (min-width: 768px) {
-        .vocab-grid { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
-        h1 { font-size: 2.2rem; }
-        .controls { flex-direction: row; justify-content: center; }
-    }
-</style>
+        .word { font-size: 1.05rem; color: #ff8b94; font-weight: 700; transition: 0.3s; }
+
+        /* Phần chi tiết mặc định bị ẩn */
+        .details { 
+            display: none; width: 100%; margin-top: 10px; text-align: left;
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Khi Card được chọn (Expand) */
+        .card.expanded { border-color: var(--secondary); background-color: white; grid-column: span 2; }
+        .card.expanded .word { font-size: 1.3rem; margin-bottom: 5px; border-bottom: 2px dashed var(--accent); width: 100%; padding-bottom: 5px; }
+        .card.expanded .details { display: block; }
+
+        .ipa { color: #aaa; font-size: 0.8rem; margin-bottom: 8px; font-family: sans-serif; }
+        .meaning { font-size: 0.9rem; color: #333; font-weight: 600; margin-bottom: 10px; padding-left: 10px; border-left: 3px solid var(--primary); }
+        .example { font-style: italic; font-size: 0.8rem; color: #666; background: #fdf5f5; padding: 10px; border-radius: 10px; line-height: 1.4; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (min-width: 768px) {
+            .vocab-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
+            .card.expanded { grid-column: auto; min-height: 180px; }
+            h1 { font-size: 2rem; }
+            .controls { flex-direction: row; justify-content: center; }
+        }
+    </style>
 </head>
 <body>
 
 <header>
-    <h1>🌸 Friends Plus 9 Vocabulary</h1>
+    <h1>📚 Friends Plus 9 Vocabulary Flashcards</h1>
+    <p>Chạm vào thẻ để xem nghĩa và ví dụ nhé!</p>
 </header>
 
 <div class="controls">
-    <input type="text" id="searchBar" placeholder="Tìm từ vựng hoặc nghĩa..." onkeyup="filterVocab()">
+    <input type="text" id="searchBar" placeholder="Tìm từ vựng..." onkeyup="filterVocab()">
     <select id="unitFilter" onchange="filterVocab()">
-        <option value="all">Tất cả bài học</option>
+        <option value="all">Tất cả Unit</option>
         <option value="Starter">Starter Unit</option>
         <option value="Unit 1">Unit 1: Then and now</option>
         <option value="Unit 2">Unit 2: Lifestyles</option>
         <option value="Unit 3">Unit 3: Our surroundings</option>
         <option value="Unit 4">Unit 4: Feelings</option>
-        <option value="Unit 5">Unit 5: English & World Discovery</option>
+        <option value="Unit 5">Unit 5: Discovery</option>
         <option value="Unit 6">Unit 6: The self</option>
         <option value="Unit 7">Unit 7: On the streets</option>
         <option value="Unit 8">Unit 8: Scary</option>
@@ -87,8 +85,6 @@
 </div>
 
 <div class="vocab-grid" id="vocabGrid"></div>
-
-<footer>Ráng học để thi đậu nào ❤️</footer>
 
 <script>
 const vocabData = [
@@ -451,6 +447,28 @@ function displayVocab(data) {
             <div class="example">" ${item.example} "</div>
         </div>
     `).join('');
+}
+
+function displayVocab(data) {
+    const grid = document.getElementById('vocabGrid');
+    grid.innerHTML = data.map(item => `
+        <div class="card" onclick="toggleCard(this)">
+            <span class="unit-tag">${item.unit}</span>
+            <div class="word">${item.word}</div>
+            <div class="details">
+                <div class="ipa">${item.ipa}</div>
+                <div class="meaning">${item.meaning}</div>
+                <div class="example">"${item.example}"</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function toggleCard(card) {
+    // Thu gọn các card khác (nếu muốn chỉ mở 1 cái duy nhất)
+    // document.querySelectorAll('.card').forEach(c => { if(c !== card) c.classList.remove('expanded'); });
+    
+    card.classList.toggle('expanded');
 }
 
 function filterVocab() {
